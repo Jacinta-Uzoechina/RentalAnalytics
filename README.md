@@ -1,17 +1,14 @@
 # RentalAnalytics
+## Customer Retention and Content Strategy Report 
+This aims at analysing customer retention for DVD Rental Co. and the competion they are getting from streaming companies.
+### Objectives
+- Segment customers into groups to identify their risk of churning
+- Measure how often customers are engaging
+- Get the film categories that are not performing well
 
-## Objectives
-- Identify churn-risk customers
-- Measure customer engagement frequency
-- Detect underperforming film categories
-- Highlight high-LTV content segments
-- Build actionable marketing targets
+### Tools
+PostgreSQL
 
-## Tools
-- PostgreSQL
-- Window Functions
-- Materialized Views
-
-## Output
-Insights to support retention campaigns, inventory optimization,
+### Output
+Insights to support retention strategies, inventory optimization,
 and content strategy decisions.
