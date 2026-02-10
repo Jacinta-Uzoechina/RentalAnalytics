@@ -1,4 +1,5 @@
 --Content Gap Analysis 
+
 WITH store_categories AS(
 	SELECT 
 		store_id,
@@ -19,7 +20,20 @@ SELECT
 	WHERE  r.rental_id IS NULL
 	GROUP BY sc.store_id, sc.category_name;
 
+--Engagement tracking
+
+SELECT 
+		c.name AS category,
+		AVG (return_date - rental_date) AS duration
+	FROM rental r 
+	LEFT JOIN inventory i ON r.inventory_id = i.inventory_id
+	LEFT JOIN film_category fc ON i.film_id = fc.film_id
+	LEFT JOIN category c ON fc.category_id = c.category_id
+	GROUP BY c.name
+	ORDER BY duration DESC;
+	
 -- Best categories
+
 WITH category_revenue AS (
 	SELECT 
 		SUM(p.amount) AS total_revenue_per_category,
