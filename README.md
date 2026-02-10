@@ -6,6 +6,9 @@ This aims at analysing customer retention for DVD Rental Co. and the competion t
 - Measure how often customers are engaging
 - Get the film categories that are not performing well
 
+### Database
+dvdrentals
+
 ### Tools
 PostgreSQL
 
