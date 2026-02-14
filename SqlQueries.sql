@@ -157,39 +157,6 @@ SELECT
     last_rental_date
 FROM customer_levels
 WHERE customer_level = 'Platinum'
-  -- View
-CREATE VIEW marketing_targets_vw AS
-
-WITH customer_levels AS (
-    SELECT 
-        c.customer_id,
-        c.first_name,
-        c.last_name,
-        c.email,
-        COUNT(r.rental_id) AS total_rentals,
-        MAX(r.rental_date) AS last_rental_date,
-        CASE
-            WHEN COUNT(r.rental_id) >= 50 THEN 'Platinum'
-            WHEN COUNT(r.rental_id) BETWEEN 20 AND 49 THEN 'Gold'
-            WHEN COUNT(r.rental_id) BETWEEN 5 AND 19 THEN 'Silver'
-            ELSE 'Bronze'
-        END AS customer_level
-    FROM customer c
-    LEFT JOIN rental r 
-        ON c.customer_id = r.customer_id
-    GROUP BY 
-        c.customer_id,
-        c.first_name,
-        c.last_name,
-        c.email
-)
-
-SELECT
-    CONCAT(first_name,' ', last_name) AS customer_name,
-    email,
-    last_rental_date
-FROM customer_levels
-WHERE customer_level = 'Platinum'
    AND last_rental_date <
     (SELECT MAX(rental_date) - INTERVAL '14 days' FROM rental);
 
