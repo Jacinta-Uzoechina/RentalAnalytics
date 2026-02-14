@@ -20,6 +20,22 @@ SELECT
 	WHERE  r.rental_id IS NULL
 	GROUP BY sc.store_id, sc.category_name;
 
+-- Performance Metrics
+WITH rental_gaps AS (
+    SELECT
+        customer_id,
+        rental_date,
+        rental_date - LAG(rental_date) OVER (
+            PARTITION BY customer_id ORDER BY rental_date
+        ) AS days_of_gap
+    FROM rental
+)
+SELECT
+    customer_id,
+    AVG(days_of_gap) AS average_days_between_rentals
+FROM rental_gaps
+GROUP BY customer_id;
+
 --Engagement tracking
 
 SELECT 
