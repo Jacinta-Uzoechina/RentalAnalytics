@@ -1,3 +1,54 @@
+-- Segment Customers
+WITH reference_date AS (
+    SELECT MAX(rental_date) + INTERVAL '2 days' AS current_date_ref
+    FROM rental
+),
+
+customer_metrics AS (
+    SELECT
+        c.customer_id,
+        c.first_name,
+        c.last_name,
+        c.email,
+        SUM(p.amount) AS total_spend,
+        COUNT(r.rental_id) AS total_rentals,
+        MAX(r.rental_date) AS last_rental_date
+    FROM customer c
+    LEFT JOIN rental r 
+        ON c.customer_id = r.customer_id
+    LEFT JOIN payment p 
+        ON r.rental_id = p.rental_id
+    GROUP BY
+        c.customer_id,
+        c.first_name,
+        c.last_name,
+        c.email
+)
+
+SELECT
+    cm.customer_id,
+    cm.first_name,
+    cm.last_name,
+    cm.total_spend,
+    cm.total_rentals,
+    cm.last_rental_date,
+    CASE
+        WHEN cm.last_rental_date IS NULL
+             OR cm.last_rental_date <
+                (SELECT current_date_ref - INTERVAL '30 days'
+                 FROM reference_date)
+             OR cm.total_rentals < 10
+        THEN 'At Risk'
+
+        WHEN cm.total_spend >= 100
+             AND cm.total_rentals > 50
+        THEN 'Top Tier'
+
+        ELSE 'Unclassified'
+    END AS customer_segment
+FROM customer_metrics cm
+ORDER BY cm.total_spend DESC;
+
 --Content Gap Analysis 
 
 WITH store_categories AS(
@@ -139,9 +190,6 @@ SELECT
     last_rental_date
 FROM customer_levels
 WHERE customer_level = 'Platinum'
-   AND (
-        last_rental_date IS NULL
-        OR last_rental_date < CURRENT_DATE - INTERVAL '14 days'
-      )
-ORDER BY last_rental_date NULLS FIRST;
+   AND last_rental_date <
+    (SELECT MAX(rental_date) - INTERVAL '14 days' FROM rental);
 
