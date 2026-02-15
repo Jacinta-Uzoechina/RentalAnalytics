@@ -61,7 +61,7 @@ WITH store_categories AS(
 )
 SELECT 
 		sc.store_id,
-		sc.category_name
+		sc.category_name,
 		COUNT (r.rental_id) AS rentals
 	FROM store_categories sc
 	LEFT JOIN inventory i ON sc.store_id = i.store_id
@@ -74,18 +74,22 @@ SELECT
 -- Performance Metrics
 WITH rental_gaps AS (
     SELECT
-        customer_id,
+        r.customer_id,
+		c.first_name,
+		c.last_name,
         rental_date,
         rental_date - LAG(rental_date) OVER (
-            PARTITION BY customer_id ORDER BY rental_date
+            PARTITION BY r.customer_id ORDER BY rental_date
         ) AS days_of_gap
-    FROM rental
+    FROM rental r
+	LEFT JOIN customer c ON r.customer_id = c.customer_id
+	GROUP BY  r.customer_id, c.first_name, c.last_name, r.rental_date
 )
 SELECT
-    customer_id,
+	CONCAT(first_name,' ', last_name) AS customer_name,
     AVG(days_of_gap) AS average_days_between_rentals
 FROM rental_gaps
-GROUP BY customer_id;
+GROUP BY customer_name;
 
 --Engagement tracking
 
@@ -136,8 +140,8 @@ WITH customer_levels AS (
         COUNT(r.rental_id) AS total_rentals,
         MAX(r.rental_date) AS last_rental_date,
         CASE
-            WHEN COUNT(r.rental_id) >= 50 THEN 'Platinum'
-            WHEN COUNT(r.rental_id) BETWEEN 20 AND 49 THEN 'Gold'
+            WHEN COUNT(r.rental_id) >= 40 THEN 'Platinum'
+            WHEN COUNT(r.rental_id) BETWEEN 20 AND 39 THEN 'Gold'
             WHEN COUNT(r.rental_id) BETWEEN 5 AND 19 THEN 'Silver'
             ELSE 'Bronze'
         END AS customer_level
@@ -158,5 +162,5 @@ SELECT
 FROM customer_levels
 WHERE customer_level = 'Platinum'
    AND last_rental_date <
-    (SELECT MAX(rental_date) - INTERVAL '14 days' FROM rental);
+    (SELECT MAX(rental_date) - INTERVAL '30 days' FROM rental);
 
