@@ -41,7 +41,7 @@ SELECT
         THEN 'At Risk'
 
         WHEN cm.total_spend >= 100
-             AND cm.total_rentals > 50
+             AND cm.total_rentals > 40
         THEN 'Top Tier'
 
         ELSE 'Unclassified'
